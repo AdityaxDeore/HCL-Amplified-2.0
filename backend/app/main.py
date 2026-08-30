@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routes import dashboard
+from app.routes import dashboard, profile
 from app.database.mongodb import connect_to_mongo, close_mongo_connection
 
 app = FastAPI(
@@ -27,6 +27,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(profile.router, prefix="/api/profile", tags=["Profile"])
 app.include_router(dashboard.router, prefix="/api/dashboard", tags=["Dashboard"])
 
 @app.get("/")

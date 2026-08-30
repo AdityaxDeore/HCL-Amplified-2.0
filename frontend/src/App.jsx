@@ -1,10 +1,49 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
+
+// Layouts
 import Layout from './components/layout/Layout'
-import Dashboard from './pages/Dashboard'
-import Login from './pages/Login'
+
+// Public Pages
+// import Login from './pages/Login' // Removed auth
+// Route for login removed
+
 import Onboarding from './pages/Onboarding'
 
-// A wrapper for pages that shouldn't have the sidebar (Login, Onboarding)
+// Application Pages
+import Dashboard from './pages/Dashboard'
+
+import Roadmap from './pages/roadmap/Roadmap'
+import RoadmapDetail from './pages/roadmap/RoadmapDetail'
+
+import Assistant from './pages/assistant/Assistant'
+import Conversation from './pages/assistant/Conversation'
+
+import ExploreSkills from './pages/explore/ExploreSkills'
+import SkillDetail from './pages/explore/SkillDetail'
+
+import Learning from './pages/learning/Learning'
+import ResourceDetail from './pages/learning/ResourceDetail'
+
+import Progress from './pages/progress/Progress'
+
+import Interview from './pages/interview/Interview'
+import InterviewSetup from './pages/interview/InterviewSetup'
+import InterviewSession from './pages/interview/InterviewSession'
+import InterviewResults from './pages/interview/InterviewResults'
+
+import Profile from './pages/profile/Profile'
+import Goals from './pages/profile/Goals'
+import ProfileSkills from './pages/profile/Skills'
+import Preferences from './pages/profile/Preferences'
+
+import Settings from './pages/Settings'
+import NotFound from './pages/NotFound'
+
+// NOTE: Authentication guard is intentionally NOT implemented here yet.
+// Auth will be added in Part 2. All routes are currently accessible.
+// The profile check that was redirecting to /onboarding has been removed
+// because the backend /profile endpoint does not exist yet.
+
 function PublicLayout() {
   return (
     <div className="min-h-screen bg-background">
@@ -17,28 +56,61 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        
+
         {/* Standalone Pages (No Sidebar/Header) */}
         <Route element={<PublicLayout />}>
-          <Route path="/login" element={<Login />} />
+          {/* Login route removed */}
           <Route path="/onboarding" element={<Onboarding />} />
         </Route>
 
         {/* Dashboard and App Pages (With Sidebar/Header) */}
         <Route path="/" element={<Layout />}>
           <Route index element={<Navigate to="/login" replace />} />
+
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="ai-mentor" element={<div className="p-4">AI Mentor Page Placeholder</div>} />
-          <Route path="roadmap" element={<div className="p-4">Roadmap Page Placeholder</div>} />
-          <Route path="skills" element={<div className="p-4">Skills Page Placeholder</div>} />
-          <Route path="courses" element={<div className="p-4">Courses Page Placeholder</div>} />
-          <Route path="projects" element={<div className="p-4">Projects Page Placeholder</div>} />
-          <Route path="assessments" element={<div className="p-4">Assessments Page Placeholder</div>} />
-          <Route path="career" element={<div className="p-4">Career Page Placeholder</div>} />
-          <Route path="analytics" element={<div className="p-4">Analytics Page Placeholder</div>} />
-          <Route path="profile" element={<div className="p-4">Profile Page Placeholder</div>} />
+
+          <Route path="roadmap">
+            <Route index element={<Roadmap />} />
+            <Route path=":roadmapId" element={<RoadmapDetail />} />
+          </Route>
+
+          <Route path="assistant">
+            <Route index element={<Assistant />} />
+            <Route path=":conversationId" element={<Conversation />} />
+          </Route>
+
+          <Route path="explore">
+            <Route index element={<ExploreSkills />} />
+            <Route path=":skillId" element={<SkillDetail />} />
+          </Route>
+
+          <Route path="learning">
+            <Route index element={<Learning />} />
+            <Route path=":resourceId" element={<ResourceDetail />} />
+          </Route>
+
+          <Route path="progress" element={<Progress />} />
+
+          <Route path="interview">
+            <Route index element={<Interview />} />
+            <Route path="setup" element={<InterviewSetup />} />
+            <Route path="session/:sessionId" element={<InterviewSession />} />
+            <Route path="results/:sessionId" element={<InterviewResults />} />
+          </Route>
+
+          <Route path="profile">
+            <Route index element={<Profile />} />
+            <Route path="goals" element={<Goals />} />
+            <Route path="skills" element={<ProfileSkills />} />
+            <Route path="preferences" element={<Preferences />} />
+          </Route>
+
+          <Route path="settings" element={<Settings />} />
+
+          {/* Catch-all 404 within Layout */}
+          <Route path="*" element={<NotFound />} />
         </Route>
-        
+
       </Routes>
     </BrowserRouter>
   )

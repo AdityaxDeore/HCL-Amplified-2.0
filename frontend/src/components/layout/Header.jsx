@@ -2,7 +2,7 @@ import { Search } from 'lucide-react'
 
 export default function Header() {
   return (
-    <header className="flex h-20 items-center justify-between px-8 bg-transparent">
+    <header className="flex pt-10 pb-4 items-center justify-between px-8 bg-transparent">
       {/* Left: Welcome Message */}
       <div className="flex items-center gap-2">
         <h1 className="text-[32px] font-semibold text-[#1A1D21] tracking-tight">

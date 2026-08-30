@@ -1,0 +1,26 @@
+﻿// CENTRALIZED MOCK LEARNER — LearnPath
+export const mockLearner = {
+  id: 'alex-morgan',
+  name: 'Alex Morgan',
+  avatarUrl: 'https://i.pravatar.cc/150?u=alex-morgan',
+  initials: 'AM',
+  primaryGoal: 'Become an AI Engineer',
+  targetRole: 'AI Engineer',
+  experience: 'Intermediate',
+  availableHoursPerWeek: 10,
+  targetMonths: 4,
+  currentFocus: 'machine-learning',
+  readiness: 78,
+  overallProgress: 32,
+  interests: ['Artificial Intelligence', 'Machine Learning', 'Generative AI'],
+  currentSkills: [
+    { skillId: 'python', name: 'Python', level: 'Intermediate' },
+    { skillId: 'sql', name: 'SQL', level: 'Intermediate' },
+    { skillId: 'git', name: 'Git', level: 'Intermediate' },
+    { skillId: 'numpy', name: 'NumPy', level: 'Beginner' },
+  ],
+  streak: 7,
+  learningHours: 42,
+  topicsCompleted: 18,
+  profileCompletion: 85,
+};

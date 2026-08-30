@@ -11,8 +11,8 @@ export default function Login() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    
-    // Simulate network request
+
+    // Simulate network request — real auth will be implemented in Part 2
     setTimeout(() => {
       navigate('/onboarding')
     }, 800)
@@ -34,14 +34,14 @@ export default function Login() {
             Sign in to continue your personalized learning journey
           </CardDescription>
         </CardHeader>
-        
+
         <form onSubmit={handleLogin}>
           <CardContent className="space-y-4 pt-4">
             <div className="space-y-2">
               <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                 Email
               </label>
-              <input 
+              <input
                 type="email"
                 defaultValue="aditya@example.com"
                 className="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
@@ -57,7 +57,7 @@ export default function Login() {
                   Forgot password?
                 </a>
               </div>
-              <input 
+              <input
                 type="password"
                 defaultValue="password123"
                 className="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
@@ -66,8 +66,8 @@ export default function Login() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4 pb-8">
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="w-full group h-11 text-base bg-primary hover:bg-primary/90 transition-all"
               disabled={isLoading}
             >
@@ -75,7 +75,7 @@ export default function Login() {
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
               ) : (
                 <>
-                  Sign In 
+                  Sign In
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </>
               )}

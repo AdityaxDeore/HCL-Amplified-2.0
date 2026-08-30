@@ -19,7 +19,8 @@
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.3",
     "recharts": "^3.10.1",
-    "tailwind-merge": "^3.6.0"
+    "tailwind-merge": "^3.6.0",
+    "tailwind-scrollbar": "^4.0.2"
   },
   "devDependencies": {
     "@types/node": "^26.4.0",

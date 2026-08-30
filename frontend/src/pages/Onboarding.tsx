@@ -1,269 +1,291 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '../components/ui/Button'
-import { Bot, Code2, Database, BrainCircuit, Rocket, ArrowRight, ArrowLeft, Loader2, Target, Clock, Layers } from 'lucide-react'
-import { cn } from '../utils/cn'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/ui/Card'
+import { ArrowRight, ArrowLeft, Check, Loader2, Sparkles, Brain, Clock, Target, BookOpen } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { fetchApi } from '../services/api'
 
-const goals = [
-  { id: 'ai', title: 'AI Engineer', icon: BrainCircuit, desc: 'Build intelligent systems and LLM apps' },
-  { id: 'ds', title: 'Data Scientist', icon: Database, desc: 'Analyze data and build predictive models' },
-  { id: 'swe', title: 'Software Engineer', icon: Code2, desc: 'Build robust scalable applications' },
-]
-
-const levels = [
-  { id: 'beginner', title: 'Beginner', desc: 'Starting from scratch' },
-  { id: 'intermediate', title: 'Intermediate', desc: 'Some experience, looking to specialize' },
-  { id: 'advanced', title: 'Advanced', desc: 'Experienced, seeking mastery' },
-]
-
-const times = [
-  { id: 'casual', title: 'Casual', desc: '2-5 hours / week' },
-  { id: 'steady', title: 'Steady', desc: '5-10 hours / week' },
-  { id: 'intensive', title: 'Intensive', desc: '10+ hours / week' },
+const steps = [
+  { id: 'welcome', title: 'Welcome', icon: Sparkles },
+  { id: 'experience', title: 'Experience', icon: Brain },
+  { id: 'goals', title: 'Goals', icon: Target },
+  { id: 'preferences', title: 'Preferences', icon: BookOpen },
+  { id: 'availability', title: 'Availability', icon: Clock },
 ]
 
 export default function Onboarding() {
   const navigate = useNavigate()
-  const [step, setStep] = useState(1)
-  const [isGenerating, setIsGenerating] = useState(false)
+  const [currentStep, setCurrentStep] = useState(0)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState('')
   
-  const [data, setData] = useState({
-    name: 'Aditya',
-    goal: '',
-    level: '',
-    time: ''
+  const [formData, setFormData] = useState({
+    experience_level: '',
+    interests: [] as string[],
+    skills: [] as any[],
+    goals: [{ goal_text: '', target_role: '', goal_type: 'career' }],
+    learning_preferences: { preferred_formats: [] as string[], pace: 'balanced' },
+    availability: { hours_per_week: 5, preferred_days: [] as string[] }
   })
 
-  // Simulated AI Roadmap Generation
-  useEffect(() => {
-    if (isGenerating) {
-      const timer = setTimeout(() => {
-        navigate('/dashboard')
-      }, 3500)
-      return () => clearTimeout(timer)
+  const updateFormData = (key: string, value: any) => {
+    setFormData(prev => ({ ...prev, [key]: value }))
+  }
+
+  const handleNext = () => {
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(curr => curr + 1)
+    } else {
+      submitOnboarding()
     }
-  }, [isGenerating, navigate])
-
-  const nextStep = () => {
-    if (step < 4) setStep(step + 1)
-    else setIsGenerating(true)
   }
 
-  const prevStep = () => {
-    if (step > 1) setStep(step - 1)
+  const handleBack = () => {
+    if (currentStep > 0) {
+      setCurrentStep(curr => curr - 1)
+    }
   }
 
-  // Common variants for page transitions
-  const pageVariants = {
-    initial: { opacity: 0, x: 20 },
-    animate: { opacity: 1, x: 0 },
-    exit: { opacity: 0, x: -20 }
+  const submitOnboarding = async () => {
+    setIsSubmitting(true)
+    setError('')
+    try {
+      await fetchApi('/profile/onboarding/complete', {
+        method: 'POST',
+        body: JSON.stringify(formData)
+      })
+      // Navigate to dashboard and refresh the page to trigger MainLayoutWrapper profile check
+      window.location.href = '/dashboard'
+    } catch (err: any) {
+      setError(err.message || 'Failed to complete onboarding')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
-  if (isGenerating) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-background p-6">
-        <div className="text-center space-y-8 max-w-md w-full">
-          <motion.div 
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="mx-auto w-24 h-24 bg-primary/10 rounded-3xl flex items-center justify-center relative"
-          >
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
-              className="absolute inset-0 border-2 border-transparent border-t-primary rounded-3xl"
-            />
-            <Bot className="h-12 w-12 text-primary" />
-          </motion.div>
-          
-          <div className="space-y-3">
-            <h2 className="text-2xl font-bold tracking-tight">Generating your AI Learning Path</h2>
+  const renderStep = () => {
+    switch (currentStep) {
+      case 0:
+        return (
+          <div className="space-y-6 text-center">
+            <div className="mx-auto bg-primary/10 w-20 h-20 rounded-full flex items-center justify-center mb-6">
+              <Sparkles className="h-10 w-10 text-primary" />
+            </div>
+            <h3 className="text-2xl font-bold">Welcome to LearnPath!</h3>
             <p className="text-muted-foreground">
-              Analyzing your goal, assessing skill gaps, and curating the best resources for {data.goal === 'ai' ? 'AI Engineering' : 'your journey'}...
+              We'll personalize your AI learning journey. Answer a few quick questions to help us tailor the perfect roadmap for you.
             </p>
           </div>
-          
-          <div className="w-full bg-secondary h-2 rounded-full overflow-hidden">
-            <motion.div 
-              initial={{ width: "0%" }}
-              animate={{ width: "100%" }}
-              transition={{ duration: 3.2, ease: "easeInOut" }}
-              className="h-full bg-primary"
-            />
+        )
+      case 1:
+        return (
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold mb-4">What is your current experience level?</h3>
+            <div className="grid gap-3">
+              {['Beginner', 'Intermediate', 'Advanced'].map(level => (
+                <button
+                  key={level}
+                  onClick={() => updateFormData('experience_level', level)}
+                  className={`p-4 rounded-xl border-2 text-left transition-all ${
+                    formData.experience_level === level
+                      ? 'border-primary bg-primary/5 shadow-md scale-[1.02]'
+                      : 'border-border bg-card hover:border-primary/50 hover:bg-accent/50'
+                  }`}
+                >
+                  <div className="font-semibold text-lg">{level}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {level === 'Beginner' && 'Just starting out or learning basics'}
+                    {level === 'Intermediate' && 'Have some practical experience'}
+                    {level === 'Advanced' && 'Looking to master complex concepts'}
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
-      </div>
-    )
+        )
+      case 2:
+        return (
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold mb-4">What is your primary goal?</h3>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Target Role (e.g. Frontend Developer)</label>
+                <input
+                  type="text"
+                  value={formData.goals[0].target_role}
+                  onChange={e => {
+                    const newGoals = [...formData.goals]
+                    newGoals[0].target_role = e.target.value
+                    updateFormData('goals', newGoals)
+                  }}
+                  className="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2"
+                  placeholder="Software Engineer"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Describe your goal</label>
+                <textarea
+                  value={formData.goals[0].goal_text}
+                  onChange={e => {
+                    const newGoals = [...formData.goals]
+                    newGoals[0].goal_text = e.target.value
+                    updateFormData('goals', newGoals)
+                  }}
+                  className="flex min-h-[100px] w-full rounded-md border border-border bg-background px-3 py-2"
+                  placeholder="I want to transition into full-stack development and get a job in 6 months."
+                />
+              </div>
+            </div>
+          </div>
+        )
+      case 3:
+        return (
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold mb-4">How do you prefer to learn?</h3>
+            <div className="grid grid-cols-2 gap-3">
+              {['Videos', 'Interactive Labs', 'Reading', 'Projects'].map(format => (
+                <button
+                  key={format}
+                  onClick={() => {
+                    const current = formData.learning_preferences.preferred_formats
+                    const updated = current.includes(format)
+                      ? current.filter(f => f !== format)
+                      : [...current, format]
+                    updateFormData('learning_preferences', { ...formData.learning_preferences, preferred_formats: updated })
+                  }}
+                  className={`p-4 rounded-xl border-2 text-center transition-all ${
+                    formData.learning_preferences.preferred_formats.includes(format)
+                      ? 'border-primary bg-primary/5 shadow-md'
+                      : 'border-border bg-card hover:border-primary/50 hover:bg-accent/50'
+                  }`}
+                >
+                  <div className="font-medium">{format}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )
+      case 4:
+        return (
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold">How much time can you commit?</h3>
+            <div className="space-y-4 text-center">
+              <div className="text-4xl font-bold text-primary">
+                {formData.availability.hours_per_week} <span className="text-xl text-muted-foreground font-normal">hrs/week</span>
+              </div>
+              <input 
+                type="range" 
+                min="1" 
+                max="40" 
+                value={formData.availability.hours_per_week}
+                onChange={e => updateFormData('availability', { ...formData.availability, hours_per_week: parseInt(e.target.value) })}
+                className="w-full accent-primary h-2 bg-secondary rounded-lg appearance-none cursor-pointer"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>1 hr</span>
+                <span>40 hrs</span>
+              </div>
+            </div>
+          </div>
+        )
+      default:
+        return null
+    }
+  }
+
+  const isNextDisabled = () => {
+    if (currentStep === 1 && !formData.experience_level) return true
+    if (currentStep === 2 && !formData.goals[0].target_role) return true
+    if (currentStep === 3 && formData.learning_preferences.preferred_formats.length === 0) return true
+    return false
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background relative overflow-hidden">
-      {/* Background gradients */}
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-primary/10 blur-[120px] rounded-full pointer-events-none" />
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+      {/* Background decorations */}
+      <div className="absolute top-0 w-full h-[500px] bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
       
-      {/* Header/Progress */}
-      <header className="p-6 relative z-10 flex justify-between items-center max-w-4xl mx-auto w-full">
-        <div className="flex items-center space-x-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold">AI</div>
-          <span className="text-lg font-bold tracking-tight">LearnPath</span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <span className="text-sm font-medium text-muted-foreground">Step {step} of 4</span>
-        </div>
-      </header>
-
-      {/* Main Content Area */}
-      <main className="flex-1 flex flex-col items-center justify-center p-6 relative z-10">
-        <div className="w-full max-w-xl">
-          <AnimatePresence mode="wait">
+      <div className="w-full max-w-2xl z-10">
+        {/* Progress bar */}
+        <div className="mb-8 px-4 flex justify-between items-center relative">
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-border rounded-full z-0"></div>
+          <div 
+            className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-primary rounded-full z-0 transition-all duration-500 ease-in-out"
+            style={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
+          ></div>
+          
+          {steps.map((step, index) => {
+            const Icon = step.icon
+            const isCompleted = currentStep > index
+            const isCurrent = currentStep === index
             
-            {step === 1 && (
-              <motion.div key="step1" variants={pageVariants} initial="initial" animate="animate" exit="exit" className="space-y-8">
-                <div className="space-y-2 text-center">
-                  <h1 className="text-3xl font-bold tracking-tight">Tell us about yourself</h1>
-                  <p className="text-muted-foreground">Let's start with the basics to personalize your experience.</p>
+            return (
+              <div key={step.id} className="relative z-10 flex flex-col items-center">
+                <div 
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
+                    isCompleted 
+                      ? 'bg-primary text-primary-foreground' 
+                      : isCurrent 
+                        ? 'bg-background border-2 border-primary text-primary shadow-lg scale-110' 
+                        : 'bg-background border-2 border-border text-muted-foreground'
+                  }`}
+                >
+                  {isCompleted ? <Check className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
                 </div>
-                <div className="space-y-4 max-w-sm mx-auto">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">What should we call you?</label>
-                    <input 
-                      type="text"
-                      value={data.name}
-                      onChange={(e) => setData({...data, name: e.target.value})}
-                      className="flex h-12 w-full rounded-xl border border-border bg-card px-4 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 transition-all"
-                      placeholder="e.g. John Doe"
-                    />
-                  </div>
+                <div className={`absolute top-12 text-xs font-medium whitespace-nowrap ${isCurrent ? 'text-primary' : 'text-muted-foreground'}`}>
+                  {step.title}
                 </div>
-              </motion.div>
-            )}
-
-            {step === 2 && (
-              <motion.div key="step2" variants={pageVariants} initial="initial" animate="animate" exit="exit" className="space-y-8">
-                <div className="space-y-2 text-center">
-                  <h1 className="text-3xl font-bold tracking-tight">What is your goal?</h1>
-                  <p className="text-muted-foreground">Select a career path you want to pursue.</p>
-                </div>
-                <div className="grid gap-4">
-                  {goals.map((g) => {
-                    const isSelected = data.goal === g.id
-                    return (
-                      <button
-                        key={g.id}
-                        onClick={() => setData({...data, goal: g.id})}
-                        className={cn(
-                          "flex items-center p-4 rounded-2xl border-2 transition-all text-left",
-                          isSelected 
-                            ? "border-primary bg-primary/5 shadow-sm" 
-                            : "border-border bg-card hover:border-primary/50 hover:bg-accent/5"
-                        )}
-                      >
-                        <div className={cn("p-3 rounded-xl mr-4", isSelected ? "bg-primary text-white" : "bg-secondary text-muted-foreground")}>
-                          <g.icon className="h-6 w-6" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-lg">{g.title}</h3>
-                          <p className="text-sm text-muted-foreground">{g.desc}</p>
-                        </div>
-                      </button>
-                    )
-                  })}
-                </div>
-              </motion.div>
-            )}
-
-            {step === 3 && (
-              <motion.div key="step3" variants={pageVariants} initial="initial" animate="animate" exit="exit" className="space-y-8">
-                <div className="space-y-2 text-center">
-                  <h1 className="text-3xl font-bold tracking-tight">What is your current level?</h1>
-                  <p className="text-muted-foreground">How much experience do you have in this field?</p>
-                </div>
-                <div className="grid gap-4">
-                  {levels.map((l) => {
-                    const isSelected = data.level === l.id
-                    return (
-                      <button
-                        key={l.id}
-                        onClick={() => setData({...data, level: l.id})}
-                        className={cn(
-                          "flex items-center p-4 rounded-2xl border-2 transition-all text-left",
-                          isSelected 
-                            ? "border-primary bg-primary/5 shadow-sm" 
-                            : "border-border bg-card hover:border-primary/50 hover:bg-accent/5"
-                        )}
-                      >
-                        <div className={cn("p-3 rounded-xl mr-4", isSelected ? "bg-primary text-white" : "bg-secondary text-muted-foreground")}>
-                          <Layers className="h-6 w-6" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-lg">{l.title}</h3>
-                          <p className="text-sm text-muted-foreground">{l.desc}</p>
-                        </div>
-                      </button>
-                    )
-                  })}
-                </div>
-              </motion.div>
-            )}
-
-            {step === 4 && (
-              <motion.div key="step4" variants={pageVariants} initial="initial" animate="animate" exit="exit" className="space-y-8">
-                <div className="space-y-2 text-center">
-                  <h1 className="text-3xl font-bold tracking-tight">How much time can you commit?</h1>
-                  <p className="text-muted-foreground">This helps us schedule your learning appropriately.</p>
-                </div>
-                <div className="grid gap-4">
-                  {times.map((t) => {
-                    const isSelected = data.time === t.id
-                    return (
-                      <button
-                        key={t.id}
-                        onClick={() => setData({...data, time: t.id})}
-                        className={cn(
-                          "flex items-center p-4 rounded-2xl border-2 transition-all text-left",
-                          isSelected 
-                            ? "border-primary bg-primary/5 shadow-sm" 
-                            : "border-border bg-card hover:border-primary/50 hover:bg-accent/5"
-                        )}
-                      >
-                        <div className={cn("p-3 rounded-xl mr-4", isSelected ? "bg-primary text-white" : "bg-secondary text-muted-foreground")}>
-                          <Clock className="h-6 w-6" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-lg">{t.title}</h3>
-                          <p className="text-sm text-muted-foreground">{t.desc}</p>
-                        </div>
-                      </button>
-                    )
-                  })}
-                </div>
-              </motion.div>
-            )}
-
-          </AnimatePresence>
+              </div>
+            )
+          })}
         </div>
-      </main>
 
-      {/* Footer / Navigation Controls */}
-      <footer className="p-6 relative z-10 max-w-4xl mx-auto w-full flex items-center justify-between">
-        {step > 1 ? (
-          <Button variant="ghost" onClick={prevStep} className="gap-2">
-            <ArrowLeft className="h-4 w-4" /> Back
-          </Button>
-        ) : <div />}
-        
-        <Button 
-          onClick={nextStep} 
-          className="gap-2 group bg-primary hover:bg-primary/90 rounded-full px-8 h-12 text-base"
-          disabled={(step === 1 && !data.name) || (step === 2 && !data.goal) || (step === 3 && !data.level) || (step === 4 && !data.time)}
-        >
-          {step === 4 ? 'Generate Roadmap' : 'Continue'} 
-          {step === 4 ? <Rocket className="h-4 w-4 ml-1" /> : <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />}
-        </Button>
-      </footer>
+        <Card className="border-border/50 shadow-2xl bg-card/80 backdrop-blur-xl mt-12">
+          <CardContent className="pt-10 min-h-[320px]">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentStep}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                {error && (
+                  <div className="mb-6 p-4 rounded-md bg-red-50 text-red-600 text-sm font-medium border border-red-200">
+                    {error}
+                  </div>
+                )}
+                {renderStep()}
+              </motion.div>
+            </AnimatePresence>
+          </CardContent>
+          <CardFooter className="flex justify-between items-center py-6 border-t border-border/50 bg-secondary/20">
+            <Button
+              variant="outline"
+              onClick={handleBack}
+              disabled={currentStep === 0 || isSubmitting}
+              className={`transition-opacity ${currentStep === 0 ? 'opacity-0' : 'opacity-100'}`}
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" /> Back
+            </Button>
+            
+            <Button 
+              onClick={handleNext} 
+              disabled={isNextDisabled() || isSubmitting}
+              className="min-w-[120px] group bg-primary hover:bg-primary/90 text-primary-foreground"
+            >
+              {isSubmitting ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : currentStep === steps.length - 1 ? (
+                <>Complete <Check className="w-4 h-4 ml-2" /></>
+              ) : (
+                <>Next <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" /></>
+              )}
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
     </div>
   )
 }
