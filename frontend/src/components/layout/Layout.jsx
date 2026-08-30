@@ -3,20 +3,19 @@ import Sidebar from './Sidebar'
 
 export default function Layout() {
   return (
-    <div className="min-h-screen bg-white relative overflow-hidden flex w-full h-screen">
-      {/* Pastel background blobs behind everything, though mostly covered by the white bg now. 
-          We'll keep them positioned absolutely just in case they want a glass effect later, 
-          but the main container is now full width/height. */}
-      <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#FCECF3] blur-[100px] rounded-full pointer-events-none opacity-50" />
-      <div className="absolute bottom-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#E0F4EE] blur-[100px] rounded-full pointer-events-none opacity-50" />
+    <div className="min-h-screen bg-[#F8FAFC] relative overflow-hidden flex w-full h-screen">
+      {/* Subtle Ambient Background Lighting */}
+      <div className="absolute top-[-15%] right-[-5%] w-[45vw] h-[45vw] max-w-[600px] max-h-[600px] bg-indigo-500/5 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-[-15%] left-[5%] w-[40vw] h-[40vw] max-w-[500px] max-h-[500px] bg-purple-500/4 blur-[120px] rounded-full pointer-events-none" />
 
       {/* Main App Container */}
       <div className="w-full h-full flex overflow-hidden relative z-10 bg-transparent">
         <Sidebar />
-        <main className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar pb-8">
+        <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-transparent">
           <Outlet />
-        </main>
+        </div>
       </div>
     </div>
   )
 }
+
