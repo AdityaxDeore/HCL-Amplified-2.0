@@ -1,265 +1,151 @@
-import Header from '../components/layout/Header'
-import { ArrowUpRight, Star, Settings as Gear, BookOpen, Scale, Contact2 } from 'lucide-react'
-import { PromptInputBox } from '../components/ui/ai-prompt-box'
+﻿import { useNavigate } from 'react-router-dom';
+import { PlayCircle, Target, BookOpen, ChevronRight, Zap, Star } from 'lucide-react';
+import Header from '../components/layout/Header';
+import { useLearner } from '../context/LearnerContext';
 
-// --- Sub-components for the Dashboard ---
-
-
-function ActivityCard({ title, rating, bubbleCount, bgColor, avatars }) {
+function ProgressRing({ progress, label }) {
   return (
-    <div className={`rounded-[24px] p-5 ${bgColor} flex flex-col justify-between min-h-[160px]`}>
-      <div className="flex justify-end">
-        <div className="bg-white rounded-full px-2 py-1 flex items-center gap-1 shadow-sm">
-          <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-          <span className="text-xs font-bold text-[#1A1D21]">{rating}</span>
-        </div>
-      </div>
-      <div className="flex-1 mt-4 flex items-center">
-        <div className="flex -space-x-2">
-          {avatars.map((url, i) => (
-            <img key={i} src={url} alt="avatar" className="w-8 h-8 rounded-full border-2 border-white/50 object-cover" />
-          ))}
-          <div className="w-8 h-8 rounded-full bg-white/60 flex items-center justify-center text-xs font-bold text-[#1A1D21] border-2 border-white/50 z-10">
-            +{bubbleCount}
-          </div>
-        </div>
-      </div>
-      <div className="flex items-center justify-between mt-4">
-        <h3 className="font-semibold text-lg text-[#1A1D21]">{title}</h3>
-        <button className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm hover:scale-105 transition-transform">
-          <ArrowUpRight className="w-4 h-4 text-[#1A1D21]" />
-        </button>
+    <div className="relative w-24 h-24 flex items-center justify-center flex-shrink-0">
+      <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="45" fill="none" stroke="#E0E7FF" strokeWidth="8" />
+        <circle cx="50" cy="50" r="45" fill="none" stroke="#4F46E5" strokeWidth="8" strokeDasharray={`${progress * 2.83} 283`} strokeLinecap="round" />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-xl font-bold text-[#1A1D21]">{progress}%</span>
+        <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">{label}</span>
       </div>
     </div>
-  )
-}
-
-function StatCard({ label, value, bgColor }) {
-  return (
-    <div className={`rounded-[20px] p-4 ${bgColor} flex flex-col justify-between h-[120px]`}>
-      <span className="text-[15px] font-medium text-[#1A1D21]">{label}</span>
-      <div className="flex items-end justify-between">
-        <span className="text-[32px] font-bold text-[#1A1D21] leading-none">{value}</span>
-        <button className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm hover:scale-105 transition-transform">
-          <ArrowUpRight className="w-4 h-4 text-[#1A1D21]" />
-        </button>
-      </div>
-    </div>
-  )
-}
-
-function CourseProgressCard() {
-  return (
-    <div className="rounded-[24px] p-6 bg-[#FCEABB] mt-4 shadow-sm border border-[#F5E2B2]">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Gear className="w-4 h-4 text-[#1A1D21]" />
-          <span className="text-sm font-semibold text-[#1A1D21]">IT & Software</span>
-        </div>
-        <button className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm hover:scale-105 transition-transform">
-          <ArrowUpRight className="w-4 h-4 text-[#1A1D21]" />
-        </button>
-      </div>
-      
-      <div className="mt-6 flex items-center gap-2">
-        <BookOpen className="w-4 h-4 text-[#1A1D21]" />
-        <span className="text-sm font-medium text-[#1A1D21]/80">11/24 Lessons</span>
-      </div>
-      
-      <h3 className="font-bold text-xl text-[#1A1D21] mt-1">Motion Design</h3>
-      
-      <div className="mt-4 h-1.5 w-full bg-black/10 rounded-full overflow-hidden">
-        <div className="h-full bg-[#1A1D21] rounded-full" style={{ width: '45%' }} />
-      </div>
-    </div>
-  )
-}
-
-function CalendarWidget() {
-  const days = ['MON', 'THU', 'WED', 'TUE', 'FRI', 'SAT', 'SUN'] // Matching the image's weird ordering intentionally if requested, but normally it's MON TUE WED. The image actually shows MON THU WED TUE FRI SAT SUN which is strange, but I'll stick to a standard MON TUE WED THU FRI SAT SUN.
-  const standardDays = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
-  
-  // Generating a grid for July 2024 (starts on Monday)
-  // 1-31.
-  const dates = Array.from({length: 35}, (_, i) => {
-    const dateNum = i + 1
-    if (dateNum > 31) return (dateNum - 31).toString()
-    return dateNum.toString()
-  })
-
-  // Pre-shift array to match July 2024 where 1st is Monday
-  
-  return (
-    <div className="bg-white rounded-[24px] p-6 shadow-[0_2px_10px_rgb(0,0,0,0.02)] border border-gray-50">
-      <div className="flex justify-between items-center mb-6">
-        <h3 className="font-bold text-lg text-[#1A1D21]">July 2024</h3>
-        <div className="flex gap-2">
-          <button className="text-gray-400 hover:text-[#1A1D21]">&lt;</button>
-          <button className="text-gray-400 hover:text-[#1A1D21]">&gt;</button>
-        </div>
-      </div>
-      
-      <div className="grid grid-cols-7 gap-y-4 gap-x-2">
-        {standardDays.map(day => (
-          <div key={day} className="text-[10px] font-bold text-gray-400 text-center">{day}</div>
-        ))}
-        
-        {/* Row 1: 1-7 */}
-        <div className="text-sm text-center py-1">1</div>
-        <div className="text-sm text-center py-1">2</div>
-        <div className="text-sm text-center py-1 border border-dashed border-gray-300 rounded-full w-8 h-8 flex items-center justify-center mx-auto text-gray-500">3</div>
-        <div className="text-sm text-center py-1">4</div>
-        <div className="text-sm text-center py-1">5</div>
-        <div className="text-sm text-center py-1">6</div>
-        <div className="text-sm text-center py-1">7</div>
-        
-        {/* Row 2: 8-14 */}
-        <div className="text-sm text-center py-1">8</div>
-        <div className="text-sm text-center py-1 bg-[#D3EAE8] rounded-full w-8 h-8 flex items-center justify-center mx-auto text-[#1A1D21] font-bold">9</div>
-        <div className="text-sm text-center py-1">10</div>
-        <div className="text-sm text-center py-1">11</div>
-        <div className="text-sm text-center py-1 bg-[#D3EAE8] rounded-full w-8 h-8 flex items-center justify-center mx-auto text-[#1A1D21] font-bold">12</div>
-        <div className="text-sm text-center py-1">13</div>
-        <div className="text-sm text-center py-1">14</div>
-        
-        {/* Row 3: 15-21 */}
-        <div className="text-sm text-center py-1">15</div>
-        <div className="text-sm text-center py-1 bg-[#1A1D21] text-white rounded-full w-8 h-8 flex items-center justify-center mx-auto font-bold">16</div>
-        <div className="text-sm text-center py-1 bg-[#1A1D21] text-white rounded-full w-8 h-8 flex items-center justify-center mx-auto font-bold">17</div>
-        <div className="text-sm text-center py-1">18</div>
-        <div className="text-sm text-center py-1">19</div>
-        <div className="text-sm text-center py-1">20</div>
-        <div className="text-sm text-center py-1">21</div>
-
-        {/* Row 4: 22-28 */}
-        <div className="text-sm text-center py-1">22</div>
-        <div className="text-sm text-center py-1">23</div>
-        <div className="text-sm text-center py-1">24</div>
-        <div className="text-sm text-center py-1">25</div>
-        <div className="text-sm text-center py-1">26</div>
-        <div className="text-sm text-center py-1">27</div>
-        <div className="text-sm text-center py-1">28</div>
-
-        {/* Row 5: 29-31, 1-4 */}
-        <div className="text-sm text-center py-1 bg-[#D3EAE8] rounded-full w-8 h-8 flex items-center justify-center mx-auto text-[#1A1D21] font-bold">29</div>
-        <div className="text-sm text-center py-1 bg-[#D3EAE8] rounded-full w-8 h-8 flex items-center justify-center mx-auto text-[#1A1D21] font-bold relative">
-          30
-          <div className="absolute inset-[-4px] border border-dashed border-gray-400 rounded-full" />
-        </div>
-        <div className="text-sm text-center py-1 bg-[#D3EAE8] rounded-full w-8 h-8 flex items-center justify-center mx-auto text-[#1A1D21] font-bold">31</div>
-        <div className="text-sm text-center py-1 text-gray-300">1</div>
-        <div className="text-sm text-center py-1 text-gray-300">2</div>
-        <div className="text-sm text-center py-1 text-gray-300">3</div>
-        <div className="text-sm text-center py-1 text-gray-300">4</div>
-      </div>
-    </div>
-  )
-}
-
-function ScheduleItem({ icon: Icon, text }) {
-  return (
-    <div className="bg-[#D3EAE8] rounded-[16px] p-3 flex items-center gap-4 hover:bg-[#c2dedc] transition-colors cursor-pointer">
-      <div className="bg-white rounded-[10px] w-12 h-12 flex items-center justify-center flex-shrink-0 shadow-sm">
-        <Icon className="w-6 h-6 text-blue-500" />
-      </div>
-      <p className="text-sm font-semibold text-[#1A1D21] leading-tight line-clamp-2 pr-2">
-        {text}
-      </p>
-    </div>
-  )
+  );
 }
 
 export default function Dashboard() {
-  const avatars1 = [
-    "https://i.pravatar.cc/150?u=1",
-    "https://i.pravatar.cc/150?u=2",
-    "https://i.pravatar.cc/150?u=3"
-  ]
-  const avatars2 = [
-    "https://i.pravatar.cc/150?u=4",
-    "https://i.pravatar.cc/150?u=5",
-    "https://i.pravatar.cc/150?u=6"
-  ]
+  const navigate = useNavigate();
+  const { learner, roadmapNodes, resources, progress } = useLearner();
+  
+  const currentSkill = roadmapNodes.find(n => n.status === 'in_progress') || roadmapNodes[0];
+  const nextResource = resources.find(r => r.relatedSkillId === currentSkill.skillId) || resources[0];
 
   return (
-    <div className="flex flex-col h-full relative">
+    <div className="flex flex-col h-full">
       <Header />
-      
-      <div className="px-8 pt-6 flex-1">
-        <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-10 mt-8">
-          
-          {/* Left Column: Activities & Progress */}
-          <div className="flex flex-col">
-            
-            <section className="mb-8 p-6 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-[24px] border border-indigo-100 shadow-sm">
-              <PromptInputBox placeholder="What do you want to learn today?" />
-            </section>
-            
-            {/* Activities Section */}
-            <section>
-              <div className="flex items-center gap-2 mb-4">
-                <h2 className="text-[22px] font-semibold text-[#1A1D21]">Your activites today</h2>
-                <span className="text-[20px] text-[#9CA3AF]">(8)</span>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-5">
-                <ActivityCard 
-                  title="UX/UI Design"
-                  rating="4.8"
-                  bubbleCount="8"
-                  bgColor="bg-[#D3EAE8]"
-                  avatars={avatars1}
-                />
-                <ActivityCard 
-                  title="Motion Design"
-                  rating="4.4"
-                  bubbleCount="6"
-                  bgColor="bg-[#FBDDE7]"
-                  avatars={avatars2}
-                />
-              </div>
-            </section>
+      <div className="px-8 pb-8 flex-1 overflow-y-auto custom-scrollbar">
 
-            {/* Progress Section */}
-            <section className="mt-8">
-              <h2 className="text-[22px] font-semibold text-[#1A1D21] mb-4">Learning progress</h2>
-              
-              <div className="grid grid-cols-3 gap-5">
-                <StatCard label="Completed" value="18" bgColor="bg-[#D3EAE8]" />
-                <StatCard label="Your score" value="72" bgColor="bg-[#FCEABB]" />
-                <StatCard label="Active" value="14" bgColor="bg-[#DFD4EB]" />
-              </div>
-
-              <CourseProgressCard />
-              
-              {/* Peek card at the bottom mimicking the design */}
-              <div className="rounded-t-[24px] p-6 bg-[#FBDDE7] mt-4 shadow-sm h-[60px] overflow-hidden opacity-50 flex items-center justify-center">
-                 <div className="w-8 h-1 rounded-full bg-black/10" />
-              </div>
-            </section>
-            
-          </div>
-
-          {/* Right Column: Schedule */}
-          <div className="flex flex-col pl-4 border-l border-gray-100/50">
-            <h2 className="text-[22px] font-semibold text-[#1A1D21] mb-4">Lesson schedule</h2>
-            
-            <CalendarWidget />
-
-            <div className="mt-6 flex flex-col gap-3">
-              <ScheduleItem 
-                icon={Contact2} 
-                text="Real World UX | Learn User Experience & Start Your Career" 
-              />
-              <ScheduleItem 
-                icon={Scale} 
-                text="User Experience (UX): The Ultimate Guide to Usability and UX" 
-              />
-            </div>
-          </div>
-          
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-[#1A1D21] tracking-tight">Welcome back, {learner.name.split(' ')[0]} 👋</h1>
+          <p className="text-gray-500 mt-1">You're making great progress towards becoming an {learner.targetRole}.</p>
         </div>
+
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+          
+          {/* Main Content */}
+          <div className="xl:col-span-2 space-y-8">
+            
+            {/* Current Focus Banner */}
+            <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl p-8 text-white relative overflow-hidden shadow-xl shadow-indigo-200">
+              <div className="absolute right-0 top-0 w-64 h-64 bg-white opacity-5 rounded-full blur-[40px] -translate-y-1/2 translate-x-1/4" />
+              
+              <div className="relative z-10">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/20 rounded-full text-xs font-bold text-white uppercase tracking-wider mb-4 border border-white/10">
+                  <Target className="w-3.5 h-3.5" /> Current Focus
+                </span>
+                <h2 className="text-3xl font-bold mb-2">{currentSkill.title}</h2>
+                <p className="text-indigo-100 max-w-md mb-8">{currentSkill.description || 'Continue your learning journey.'}</p>
+                
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <button onClick={() => navigate('/roadmap')} className="h-12 px-6 bg-white text-indigo-700 font-bold rounded-xl hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 shadow-sm">
+                    View Roadmap <ChevronRight className="w-4 h-4" />
+                  </button>
+                  <button onClick={() => navigate(`/learning/${nextResource.id}`)} className="h-12 px-6 bg-indigo-500/30 text-white border border-indigo-400/50 font-bold rounded-xl hover:bg-indigo-500/50 transition-colors flex items-center justify-center gap-2 backdrop-blur-sm">
+                    <PlayCircle className="w-5 h-5" /> Resume Learning
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Recommended Learning */}
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-[#1A1D21]">Recommended for you</h2>
+                <button onClick={() => navigate('/learning')} className="text-sm font-semibold text-indigo-600 hover:text-indigo-800">View All</button>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {resources.slice(0, 2).map((res) => (
+                  <div key={res.id} onClick={() => navigate(`/learning/${res.id}`)} className="bg-white rounded-2xl border border-gray-100 p-5 hover:shadow-md hover:border-indigo-100 transition-all cursor-pointer group">
+                    <div className="flex items-start justify-between mb-3">
+                      <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{res.provider}</span>
+                      <span className="flex items-center gap-1 text-amber-500 bg-amber-50 px-2 py-0.5 rounded-full text-[10px] font-bold">
+                        <Star className="w-3 h-3 fill-amber-500" /> {res.rating}
+                      </span>
+                    </div>
+                    <h3 className="font-bold text-[#1A1D21] mb-2 line-clamp-2 group-hover:text-indigo-700 transition-colors">{res.title}</h3>
+                    <div className="flex items-center gap-2 text-[11px] font-medium text-gray-500">
+                      <span className="capitalize">{res.type}</span>
+                      {res.durationHours && (
+                        <>
+                          <span className="w-1 h-1 rounded-full bg-gray-300" />
+                          <span>{res.durationHours}h</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+
+          {/* Right Sidebar */}
+          <div className="space-y-8">
+            
+            {/* Quick Stats */}
+            <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm">
+              <h2 className="text-lg font-bold text-[#1A1D21] mb-6">Learning Activity</h2>
+              <div className="flex justify-center mb-6">
+                <ProgressRing progress={progress.overall} label="Overall" />
+              </div>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                      <Zap className="w-4 h-4" />
+                    </div>
+                    <span className="font-semibold text-gray-700 text-sm">Current Streak</span>
+                  </div>
+                  <span className="font-bold text-[#1A1D21]">{progress.streak} days</span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">
+                      <BookOpen className="w-4 h-4" />
+                    </div>
+                    <span className="font-semibold text-gray-700 text-sm">Topics Done</span>
+                  </div>
+                  <span className="font-bold text-[#1A1D21]">{progress.topicsCompleted}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Next Milestone */}
+            <div className="bg-indigo-50 rounded-3xl border border-indigo-100 p-6">
+              <h2 className="text-sm font-bold text-indigo-800 uppercase tracking-wider mb-4 flex items-center gap-2">
+                <Target className="w-4 h-4 text-indigo-600" /> Next Milestone
+              </h2>
+              <div className="space-y-1">
+                <h3 className="font-bold text-indigo-900">{progress.nextAction.title}</h3>
+                <p className="text-sm text-indigo-700">{progress.nextAction.description}</p>
+              </div>
+              <div className="mt-4 pt-4 border-t border-indigo-200">
+                <button onClick={() => navigate('/progress')} className="text-sm font-bold text-indigo-700 hover:text-indigo-900 flex items-center gap-1">
+                  View Full Progress <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
       </div>
     </div>
-  )
+  );
 }
