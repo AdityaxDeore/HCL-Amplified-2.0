@@ -1,33 +1,38 @@
-import { Bell, Search } from "lucide-react"
+import { Search } from 'lucide-react'
 
 export default function Header() {
   return (
-    <header className="flex h-16 items-center justify-between border-b bg-card px-6">
-      <div className="flex flex-1 items-center space-x-4">
-        <h1 className="text-lg font-semibold text-foreground">Welcome back, Learner</h1>
+    <header className="flex h-20 items-center justify-between px-8 bg-transparent">
+      {/* Left: Welcome Message */}
+      <div className="flex items-center gap-2">
+        <h1 className="text-[32px] font-semibold text-[#1A1D21] tracking-tight">
+          Welcome back
+        </h1>
+        <span className="text-[32px]">👋</span>
       </div>
-      
-      <div className="flex items-center space-x-4">
+
+      {/* Right: Search and Avatar */}
+      <div className="flex items-center gap-4">
+        {/* Search Bar */}
         <div className="relative">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+            <Search className="h-4 w-4 text-gray-400" />
+          </div>
           <input
-            type="search"
-            placeholder="Search resources..."
-            className="h-9 w-64 rounded-md border bg-background pl-9 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            type="text"
+            className="block w-64 h-12 pl-10 pr-4 py-2 text-sm text-gray-900 bg-[#F5F6F8] rounded-full border-none focus:ring-2 focus:ring-[#1A1D21] focus:outline-none placeholder:text-gray-400"
+            placeholder="Search something"
           />
         </div>
-        
-        <button className="relative rounded-full p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-          <Bell className="h-5 w-5" />
-          <span className="absolute right-1.5 top-1.5 flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-          </span>
+
+        {/* Avatar */}
+        <button className="flex h-12 w-12 rounded-full overflow-hidden border-2 border-white shadow-sm hover:opacity-80 transition-opacity">
+          <img
+            src="https://i.pravatar.cc/150?u=aditya"
+            alt="User avatar"
+            className="h-full w-full object-cover"
+          />
         </button>
-        
-        <div className="h-8 w-8 rounded-full bg-accent flex items-center justify-center text-accent-foreground font-semibold text-sm cursor-pointer shadow-sm">
-          AL
-        </div>
       </div>
     </header>
   )
