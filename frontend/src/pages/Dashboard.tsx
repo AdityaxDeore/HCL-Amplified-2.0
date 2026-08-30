@@ -1,7 +1,41 @@
 import Header from '../components/layout/Header'
-import { ArrowUpRight, Star, Settings as Gear, BookOpen, Scale, Contact2 } from 'lucide-react'
+import { ArrowUpRight, Star, Settings as Gear, BookOpen, Scale, Contact2, Bot, Send } from 'lucide-react'
 
 // --- Sub-components for the Dashboard ---
+
+function AIChatBox() {
+  return (
+    <div className="bg-white rounded-[24px] p-6 shadow-sm border border-gray-100 flex flex-col h-[280px]">
+      <div className="flex items-center gap-3 mb-4 border-b border-gray-100 pb-4">
+        <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-tr from-[#6366f1] to-[#a855f7] text-white shadow-sm">
+          <Bot className="w-5 h-5" />
+        </div>
+        <div>
+          <h3 className="font-bold text-lg text-[#1A1D21] leading-tight">AI Learning Assistant</h3>
+          <p className="text-sm text-gray-500">Ask me anything about your learning path</p>
+        </div>
+      </div>
+      <div className="flex-1 overflow-y-auto mb-4 flex flex-col justify-end space-y-3">
+         <div className="self-end bg-[#D3EAE8] px-4 py-2 rounded-2xl rounded-tr-sm max-w-[85%] text-sm text-[#1A1D21]">
+            What should I focus on next?
+         </div>
+         <div className="self-start bg-gray-50 px-4 py-2 rounded-2xl rounded-tl-sm max-w-[85%] text-sm text-[#1A1D21] border border-gray-100">
+            Based on your progress, I recommend starting with the <strong className="text-[#6366f1]">Motion Design</strong> module to complete your current milestone.
+         </div>
+      </div>
+      <div className="relative">
+        <input 
+          type="text" 
+          placeholder="Ask a question..." 
+          className="w-full bg-gray-50 border border-gray-200 rounded-full py-3 px-5 pr-12 text-sm focus:outline-none focus:border-[#6366f1] focus:ring-1 focus:ring-[#6366f1] transition-all placeholder:text-gray-400 text-[#1A1D21]"
+        />
+        <button className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-[#6366f1] flex items-center justify-center text-white hover:bg-[#4f46e5] transition-colors shadow-sm">
+          <Send className="w-4 h-4 ml-[2px]" />
+        </button>
+      </div>
+    </div>
+  )
+}
 
 function ActivityCard({ title, rating, bubbleCount, bgColor, avatars }) {
   return (
@@ -188,6 +222,11 @@ export default function Dashboard() {
           
           {/* Left Column: Activities & Progress */}
           <div className="flex flex-col">
+            
+            {/* AI Chatbot Section */}
+            <section className="mb-8">
+              <AIChatBox />
+            </section>
             
             {/* Activities Section */}
             <section>
