@@ -17,7 +17,12 @@ from app.routes import (
     dashboard,
     gaps,
     recommendations,
-    reality
+    reality,
+    assistant,
+    readiness,
+    feedback,
+    interviews,
+    demo
 )
 
 @asynccontextmanager
@@ -82,6 +87,12 @@ app.include_router(recommendations.router, prefix="/api/recommendations", tags=[
 app.include_router(recommendations.router, prefix="/api/recommendation", tags=["Recommendation (Alias)"])
 app.include_router(reality.router, prefix="/api/reality-check", tags=["Reality Checker"])
 app.include_router(reality.router, prefix="/api/reality", tags=["Reality (Alias)"])
+app.include_router(assistant.router, prefix="/api/assistant", tags=["AI Assistant"])
+app.include_router(readiness.router, prefix="/api/readiness", tags=["Readiness Intelligence"])
+app.include_router(feedback.router, prefix="/api/feedback", tags=["Adaptive Feedback"])
+app.include_router(interviews.router, prefix="/api/interviews", tags=["AI Interview Simulator"])
+app.include_router(interviews.router, prefix="/api/interview", tags=["AI Interview (Alias)"])
+app.include_router(demo.router, prefix="/api/demo", tags=["Demo Reset"])
 
 # Compatibility alias for profile
 app.include_router(learner.router, prefix="/api/profile", tags=["Profile (Legacy)"])

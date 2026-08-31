@@ -1,7 +1,7 @@
 import logging
 import re
 import httpx
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime
 from app.config import settings
 from app.ingestion.base import BaseResourceIngestor
@@ -190,11 +190,22 @@ class YouTubeIngestor(BaseResourceIngestor):
     @staticmethod
     def parse_iso_duration(iso_str: str) -> Tuple[int, str, str]:
         try:
-            dur = isodate.parse_duration(iso_str)
-            total_seconds = int(dur.total_seconds())
-            hours = total_seconds // 3600
-            minutes = (total_seconds % 3600) // 60
+            if not iso_str:
+                return 1800, "30m", "MEDIUM"
             
+            # Match ISO 8601 pattern like PT1H25M30S or PT15M or PT45S
+            pattern = re.compile(r'P(?:(\d+)D)?T?(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?')
+            match = pattern.match(iso_str)
+            if not match:
+                return 1800, "30m", "MEDIUM"
+
+            days = int(match.group(1) or 0)
+            hours = int(match.group(2) or 0)
+            minutes = int(match.group(3) or 0)
+            seconds = int(match.group(4) or 0)
+
+            total_seconds = (days * 86400) + (hours * 3600) + (minutes * 60) + seconds
+
             if hours > 0:
                 duration_str = f"{hours}h {minutes}m"
             else:

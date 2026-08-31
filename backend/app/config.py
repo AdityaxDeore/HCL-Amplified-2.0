@@ -9,6 +9,9 @@ class Settings(BaseSettings):
     DATABASE_NAME: str = "learnpath"
     FRONTEND_ORIGIN: str = "http://localhost:5173"
     YOUTUBE_API_KEY: Optional[str] = Field(default=None, validation_alias="YOUTUBE_API_KEY")
+    GROQ_API_KEY: Optional[str] = Field(default=None, validation_alias="GROQ_API_KEY")
+    GEMINI_API_KEY: Optional[str] = Field(default=None, validation_alias="GEMINI_API_KEY")
+    GEMINI_MODEL: str = Field(default="gemini-3.6-flash", validation_alias="GEMINI_MODEL")
     
     class Config:
         env_file = ".env"
